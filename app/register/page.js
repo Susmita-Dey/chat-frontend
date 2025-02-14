@@ -15,7 +15,7 @@ export default function Register() {
 
     try {
       const response = await fetch(
-        "https://chat-app-strapi-backend.onrender.com/api/auth/local/register",
+        "https://chat-backend-ovra.onrender.com/api/auth/local/register",
         {
           method: "POST",
           headers: {

@@ -9,7 +9,7 @@ const Chat = () => {
   const socket = useRef(null);
 
   useEffect(() => {
-    socket.current = io("https://chat-app-strapi-backend.onrender.com");
+    socket.current = io("http://localhost:1337");
 
     socket.current.on("message", (data) => {
       setMessages((prevMessages) => [
@@ -26,8 +26,13 @@ const Chat = () => {
   const fetchMessages = async () => {
     try {
       const response = await fetch(
-        "https://chat-app-strapi-backend.onrender.com/api/chat-messages",
-        { method: "GET", headers: { "Content-Type": "application/json" } }
+        "https://chat-backend-ovra.onrender.com/api/chat-messages",
+        {
+          method: "GET", headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+          }
+        }
       );
 
       const data = await response.json();
@@ -55,31 +60,42 @@ const Chat = () => {
       const user = JSON.parse(localStorage.getItem("user") || "{}");
       const token = localStorage.getItem("token");
 
-      if (!user || !token) {
+      if (!user || !token || !user.id) {
         alert("You are not logged in. Please log in to send messages.");
         return;
       }
 
-      socket.current.emit("message", { username: user, text: message, token });
+      console.log("Sending message with user ID:", user.id);
+      console.log("Token:", token);
 
       const response = await fetch(
-        "https://chat-app-strapi-backend.onrender.com/api/chat-messages",
+        "https://chat-backend-ovra.onrender.com/api/chat-messages",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ data: { username: user, message } }),
+          body: JSON.stringify({
+            data: {
+              message: message,
+              users_permissions_user: user.id,
+              timestamp: new Date().toISOString(),
+            },
+          }),
         }
       );
+      console.log(user.id);
+
+      const result = await response.json();
+      console.log("API Response:", result);
 
       if (!response.ok) {
         console.log("Failed to send message.");
         return;
       }
 
-      setMessages((prevMessages) => [...prevMessages, { sender: user, text: message }]);
+      setMessages((prevMessages) => [...prevMessages, { sender: user.username, text: message }]);
       setMessage("");
     } catch (error) {
       alert("Error sending message.");
@@ -109,7 +125,7 @@ const Chat = () => {
           <div className="flex flex-col flex-grow overflow-y-auto border border-gray-300 rounded p-4">
             {messages.map((msg, idx) => (
               <div key={idx} className="mb-2">
-                <span className="font-bold">{msg.sender}: </span>
+                <span className="font-bold">{msg.sender ? msg.sender : "Server"}: </span>
                 <span>{msg.text}</span>
               </div>
             ))}

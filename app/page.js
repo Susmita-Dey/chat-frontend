@@ -18,7 +18,7 @@ export default function Home() {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "https://chat-app-strapi-backend.onrender.com/api/auth/local",
+        "https://chat-backend-ovra.onrender.com/api/auth/local",
         {
           identifier,
           password,
@@ -26,14 +26,13 @@ export default function Home() {
       );
 
       const token = response.data.jwt;
-      const user = response.data.user.username;
+      const user = response.data.user;
 
       setToken(token);
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
 
       alert("Login successful!");
-      // router.replace("/chat");
 
       // Delay navigation slightly to avoid issues
       setTimeout(() => {
