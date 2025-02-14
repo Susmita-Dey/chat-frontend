@@ -7,7 +7,6 @@ const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
   const socket = useRef(null);
-  const currentUser = JSON.parse(localStorage.getItem("user") || "{}"); // Prevents errors if `user` is not set
 
   useEffect(() => {
     socket.current = io("https://chat-app-strapi-backend.onrender.com");
