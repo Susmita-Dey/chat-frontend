@@ -9,7 +9,7 @@ const Chat = () => {
   const socket = useRef(null);
 
   useEffect(() => {
-    socket.current = io("http://localhost:1337");
+    socket.current = io("https://chat-backend-ovra.onrender.com");
 
     socket.current.on("message", (data) => {
       setMessages((prevMessages) => [
